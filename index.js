@@ -24,17 +24,46 @@ class Students {
   }
   setStudents(studentsArr){
     this.studentsArr = studentsArr;
+    this.currentlyDisplayed = this.studentsArr;
   }
   filterArrBy(propertyIndex, searchTxt){
     const relevantStudents = this.studentsArr.filter(tr =>{
       return [...tr.childNodes][propertyIndex].innerHTML.toLowerCase().includes(searchTxt.toLowerCase());
     });
-    table.innerHTML = '';
-    this.createHeadings();
+    document.querySelector('tbody').innerHTML = '';
     relevantStudents.forEach(tr => {
-      table.appendChild(tr);
-    })
+      document.querySelector('tbody').appendChild(tr);
+    });
     console.log(relevantStudents);
+    this.currentlyDisplayed = relevantStudents;
+  }
+  sortArrBy(propertyIndex){
+    // numbers
+    const numbers = new Set([0, 3, 4]);
+    if (numbers.has(propertyIndex)){
+      this.currentlyDisplayed.sort((tr1, tr2) => {
+        return [...tr1.childNodes][propertyIndex].innerHTML - [...tr2.childNodes][propertyIndex].innerHTML;
+      });
+    }
+    // letters
+    const letters = new Set([1, 2, 5, 6, 7]);
+    if (letters.has(propertyIndex)){
+      this.currentlyDisplayed.sort((tr1, tr2) => {
+        const word1 = [...tr1.childNodes][propertyIndex].innerHTML.toLowerCase();
+        const word2 = [...tr2.childNodes][propertyIndex].innerHTML.toLowerCase();
+        if (word1 < word2){ 
+          return -1;
+        }
+        else if (word1 > word2) {
+           return 1;
+        }
+        return 0;
+      });
+    }
+    document.querySelector('tbody').innerHTML = '';
+    this.currentlyDisplayed.forEach(tr => {
+      document.querySelector('tbody').appendChild(tr);
+    });
   }
   updateLocalStorage(){
     const studentsArrStr = this.studentsArr.map(tr => tr.outerHTML);
@@ -49,13 +78,17 @@ class Students {
     });
     console.log('im here');
     this.updateLocalStorage();
+    this.currentlyDisplayed = this.studentsArr;
   }
   createHeadings(){
     console.log('createHeadings is called');
     const tr = document.createElement('tr');
-    this.studentsProperties.forEach(property => {
+    this.studentsProperties.forEach((property, indx) => {
       const th = document.createElement('th');
-      th.innerHTML = property.split('-').join(' ').toUpperCase();
+      const btn = document.createElement('button');
+      btn.innerHTML = property.split('-').join(' ').toUpperCase();
+      btn.setAttribute('data-sort', indx);
+      th.appendChild(btn);
       tr.appendChild(th);
     });
     document.querySelector('thead').appendChild(tr);
@@ -184,17 +217,23 @@ else {
 
 // event listners
 function tableClick(event){
-  console.log(event.target);
-  students.updateStudentData(event);
+  if (event.target.dataset.sort){
+    students.sortArrBy(eval(event.target.dataset.sort));
+  }
+  else{
+    students.updateStudentData(event);
+  }
 }
 table.addEventListener('click', tableClick);
 
 
 function search(event){
-  const searchTxt = event.target.value;
+  const searchTxt = document.querySelector('.search-field').value;
   const parameter = document.querySelector('select').value;
   students.filterArrBy(students.studentsProperties.indexOf(parameter), searchTxt)
 }
 
 const searchField = document.querySelector('.search-field');
 searchField.addEventListener('keyup', search);
+const selectParam = document.querySelector('select');
+selectParam.addEventListener('click', search);
