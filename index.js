@@ -22,6 +22,9 @@ class Students {
   getStudents(){
     return this.studentsArr;
   }
+  setStudents(studentsArr){
+    this.studentsArr = studentsArr;
+  }
   filterArrBy(propertyIndex, searchTxt){
     const relevantStudents = this.studentsArr.filter(tr =>{
       return [...tr.childNodes][propertyIndex].innerHTML.toLowerCase().includes(searchTxt.toLowerCase());
@@ -33,23 +36,29 @@ class Students {
     })
     console.log(relevantStudents);
   }
+  updateLocalStorage(){
+    const studentsArrStr = this.studentsArr.map(tr => tr.outerHTML);
+    window.localStorage.setItem('studentsArr', JSON.stringify(studentsArrStr));
+    console.log(JSON.stringify(this.studentsArr));
+    console.log(JSON.stringify(studentsArrStr));
+  }
   studentsArrInitializing(studentsData){
     this.createHeadings();
     studentsData.forEach(studentObj => {
       this.addStudent(studentObj)
     });
-    window.localStorage.setItem('studentsArr', JSON.stringify(this.studentsArr));
-    console.log(window.localStorage.getItem('studentsArr'));
-    console.log(this.studentsArr);
+    console.log('im here');
+    this.updateLocalStorage();
   }
   createHeadings(){
+    console.log('createHeadings is called');
     const tr = document.createElement('tr');
     this.studentsProperties.forEach(property => {
       const th = document.createElement('th');
       th.innerHTML = property.split('-').join(' ').toUpperCase();
       tr.appendChild(th);
     });
-    table.appendChild(tr);
+    document.querySelector('thead').appendChild(tr);
   }
   addStudent(studentObj){
     const tr = document.createElement('tr');
@@ -119,12 +128,14 @@ class Students {
           break;
         case 'delete':
           this.deleteStudent(tr);
+          this.updateLocalStorage();
           break;
         case 'cancel':
           this.cancelOrConfirmEdit(tr, false);
           break;
         case 'confirm':
           this.cancelOrConfirmEdit(tr, true);
+          this.updateLocalStorage();
           break;
         default:
           // do nothing
@@ -134,10 +145,7 @@ class Students {
 }
 
 // on page load
-let students;
-
-// if (students)
-async function studentsData(){
+async function fetchStudentsData(){
   const fetchRes = await fetch(API);
   const allStudents = await fetchRes.json();
   
@@ -153,16 +161,30 @@ async function studentsData(){
     const extra = extraData[i];
     allStudentsWithExstra.push({...student, ...extra});
   }
-
-  students = new Students();
   students.studentsArrInitializing(allStudentsWithExstra);
 }
-studentsData();
 
+const students = new Students();
+// window.localStorage.clear();
+if (window.localStorage.getItem('studentsArr')){
+  console.log();
+  let studentsTrs = '';
+  const rawStudentsArr = JSON.parse(window.localStorage.getItem('studentsArr'));
+  rawStudentsArr.forEach(tr => {
+    studentsTrs += tr;
+  });
+  students.createHeadings();
+  document.querySelector('tbody').innerHTML = studentsTrs;
+  students.setStudents([...document.querySelector('tbody').childNodes]);
+}
+else {
+  fetchStudentsData();
+}
 
 
 // event listners
 function tableClick(event){
+  console.log(event.target);
   students.updateStudentData(event);
 }
 table.addEventListener('click', tableClick);
