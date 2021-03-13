@@ -1,6 +1,5 @@
 // global consts
 const API = 'https://apple-seeds.herokuapp.com/api/users/';
-const table = document.querySelector('table');
 
 
 class Students {
@@ -34,7 +33,6 @@ class Students {
     relevantStudents.forEach(tr => {
       document.querySelector('tbody').appendChild(tr);
     });
-    console.log(relevantStudents);
     this.currentlyDisplayed = relevantStudents;
   }
   sortArrBy(propertyIndex){
@@ -68,20 +66,16 @@ class Students {
   updateLocalStorage(){
     const studentsArrStr = this.studentsArr.map(tr => tr.outerHTML);
     window.localStorage.setItem('studentsArr', JSON.stringify(studentsArrStr));
-    console.log(JSON.stringify(this.studentsArr));
-    console.log(JSON.stringify(studentsArrStr));
   }
   studentsArrInitializing(studentsData){
     this.createHeadings();
     studentsData.forEach(studentObj => {
       this.addStudent(studentObj)
     });
-    console.log('im here');
     this.updateLocalStorage();
     this.currentlyDisplayed = this.studentsArr;
   }
   createHeadings(){
-    console.log('createHeadings is called');
     const tr = document.createElement('tr');
     this.studentsProperties.forEach((property, indx) => {
       const th = document.createElement('th');
@@ -98,7 +92,7 @@ class Students {
     tr.setAttribute('data-id', studentObj.id);
     this._createDataTds(Object.values(studentObj), tr);
     this._createTrBtns('edit', 'delete', tr, false)
-    table.appendChild(tr);
+    document.querySelector('tbody').appendChild(tr);
     this.studentsArr.push(tr);
   }
   _createDataTds(dataArr, tr){
@@ -151,7 +145,6 @@ class Students {
     tr.remove();
   }
   updateStudentData(event){
-    console.log('click');
     const btn = event.target;
     if (btn.tagName === 'BUTTON'){
       const tr = btn.parentElement.parentElement;
@@ -178,6 +171,10 @@ class Students {
 }
 
 // on page load
+
+// handel responsiveness
+const width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+document.querySelector('.container').style.width = width.toString() + 'px';
 async function fetchStudentsData(){
   const fetchRes = await fetch(API);
   const allStudents = await fetchRes.json();
@@ -198,9 +195,8 @@ async function fetchStudentsData(){
 }
 
 const students = new Students();
-// window.localStorage.clear();
+
 if (window.localStorage.getItem('studentsArr')){
-  console.log();
   let studentsTrs = '';
   const rawStudentsArr = JSON.parse(window.localStorage.getItem('studentsArr'));
   rawStudentsArr.forEach(tr => {
@@ -224,6 +220,7 @@ function tableClick(event){
     students.updateStudentData(event);
   }
 }
+const table = document.querySelector('table');
 table.addEventListener('click', tableClick);
 
 
