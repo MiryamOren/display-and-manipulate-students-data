@@ -45,6 +45,20 @@ nav select {
 table {
   color: #fff;
   margin: 3rem auto;
+  width: 100%;
+}
+table button {
+  background-color: transparent;
+  color: #d8e4eb;
+  border: 2px solid #d8e4eb;
+  padding: 7px 10px;
+  border-radius: 30px;
+  cursor: pointer;
+  margin: 5px 5px;
+}
+table button:hover {
+  background-color: #d8e4eb;
+  color: #000;
 }
 thead {
   width: 100%;
@@ -56,27 +70,14 @@ table tr {
   width: 100%;
   text-align: center;
 }
-tr td:nth-child(9) {
-  min-width: 16rem;
-  column-span: 2;
-}
-table button {
-  background-color: transparent;
-  color: #d8e4eb;
-  border: 2px solid #d8e4eb;
-  padding: 7px 15px;
-  border-radius: 30px;
-  cursor: pointer;
-  margin: 5px 5px;
-}
-table button:hover {
-  background-color: #d8e4eb;
-  color: #000;
-}
 table td {
   line-height: 1.15rem;
-  max-width: 10%;
+  width: 10%;
 }
+tr td:nth-child(9) {
+  width: 20%;
+}
+
 table td input {
   height: 2rem;
   border: none;
